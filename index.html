@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PnpDice – Würfel-Plugin für Pen & Paper</title>
+<meta name="description" content="Unabhängiges Würfel-Plugin für Pen-&-Paper-Webapps: animierte 3D-Würfel, Würfel-Log, eigene Würfel. Ohne Abhängigkeiten.">
+<style>
+  :root {
+    --bg: #0b1013; --ink: #e7ecef; --muted: #93a3ad; --line: rgba(255,255,255,.09);
+    --card: rgba(18, 26, 30, .78); --gold: #fbbf24; --teal: #5eead4;
+  }
+  * { box-sizing: border-box; }
+  html { color-scheme: dark; }
+  body {
+    margin: 0; color: var(--ink); background: var(--bg);
+    font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background-image:
+      radial-gradient(1100px 600px at 85% -10%, rgba(94,234,212,.10), transparent 60%),
+      radial-gradient(900px 600px at -10% 30%, rgba(124,58,237,.12), transparent 60%),
+      radial-gradient(800px 500px at 60% 110%, rgba(245,158,11,.08), transparent 60%);
+    min-height: 100vh;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 32px 20px 80px; }
+  header.top { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: 28px; }
+  h1 { font-size: clamp(30px, 5vw, 46px); margin: 0; letter-spacing: -.02em; line-height: 1.05; }
+  h1 span { color: var(--gold); }
+  .lead { color: var(--muted); max-width: 640px; margin: 10px 0 0; }
+  .pill { font-size: 12px; color: var(--teal); border: 1px solid rgba(94,234,212,.35); padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+  .grid { display: grid; grid-template-columns: minmax(300px, 400px) 1fr; gap: 22px; align-items: start; }
+  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+  .stack { display: grid; gap: 22px; min-width: 0; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; min-width: 0; }
+  .card h2 { font-size: 15px; letter-spacing: .06em; text-transform: uppercase; margin: 0 0 4px; }
+  .card p.sub { color: var(--muted); margin: 0 0 14px; font-size: 14px; }
+  .btns { display: flex; flex-wrap: wrap; gap: 8px; }
+  .btn {
+    font: inherit; color: var(--ink); background: rgba(255,255,255,.06); border: 1px solid var(--line);
+    padding: 8px 12px; border-radius: 10px; cursor: pointer; display: inline-flex; gap: 8px; align-items: center;
+  }
+  .btn:hover { background: rgba(255,255,255,.1); }
+  .btn b { color: var(--gold); font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 600; font-size: 13px; }
+  .sheet { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+  .stat { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,.04); border: 1px solid var(--line); cursor: pointer; }
+  .stat:hover { border-color: rgba(251,191,36,.45); }
+  .stat span { color: var(--muted); font-size: 13px; }
+  .stat strong { font-variant-numeric: tabular-nums; }
+  .mat {
+    position: relative; height: 320px; border-radius: 14px; overflow: hidden; border: 1px solid rgba(94,234,212,.25);
+    background:
+      radial-gradient(ellipse at center, rgba(13, 80, 64, .55), rgba(5, 25, 22, .9)),
+      repeating-linear-gradient(45deg, rgba(255,255,255,.015) 0 2px, transparent 2px 6px);
+    box-shadow: inset 0 0 60px rgba(0,0,0,.6);
+  }
+  .mat .hint { position: absolute; inset: auto 0 10px; text-align: center; color: rgba(255,255,255,.35); font-size: 13px; pointer-events: none; }
+  pre { margin: 0; overflow: auto; background: rgba(0,0,0,.35); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font: 12.5px/1.55 ui-monospace, Menlo, Consolas, monospace; color: #cbd5e1; }
+  .feed { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 4px; font: 12.5px ui-monospace, Menlo, Consolas, monospace; color: var(--muted); max-height: 140px; overflow: auto; }
+  .feed li b { color: var(--teal); font-weight: 600; }
+  .compact { --pd-bg: rgba(14, 34, 30, .9); --pd-border: rgba(94, 234, 212, .22); }
+  .looks .btn canvas { width: 30px; height: 30px; }
+  .looks .btn[aria-pressed="true"] { border-color: var(--gold); background: rgba(251,191,36,.12); }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  @media (max-width: 1040px) { .row2 { grid-template-columns: 1fr; } }
+  footer { color: var(--muted); font-size: 13px; margin-top: 36px; text-align: center; }
+  code.inline { font-family: ui-monospace, Menlo, Consolas, monospace; color: var(--gold); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Pnp<span>Dice</span></h1>
+      <p class="lead">Ein Würfel-Plugin für alle Pen-&-Paper-Webapps: echte 3D-Würfel mit Physik, Würfel-Log, eigene Würfel und eine Formelsprache von <code class="inline">3w20</code> bis <code class="inline">12w6&gt;=5</code>. Eine Datei, keine Abhängigkeiten, keine externen Aufrufe.</p>
+    </div>
+    <span class="pill">v<span id="ver"></span> · MIT</span>
+  </header>
+
+  <div class="grid">
+    <div class="stack">
+      <div id="tool"></div>
+      <div class="compact" id="tool-compact"></div>
+    </div>
+
+    <div class="stack">
+      <section class="card">
+        <h2>Charakterbogen</h2>
+        <p class="sub">Jedes Element mit <code class="inline">data-pnp-roll</code> würfelt beim Klick, das Ergebnis landet im Log links.</p>
+        <div class="sheet">
+          <div class="stat" data-pnp-roll="1w20+5" data-pnp-label="Angriff"><span>Angriff</span><strong>1W20+5</strong></div>
+          <div class="stat" data-pnp-roll="2w6+3" data-pnp-label="Langschwert"><span>Langschwert</span><strong>2W6+3</strong></div>
+          <div class="stat" data-pnp-roll="(2w6+3)*2" data-pnp-label="Krit-Schaden"><span>Krit-Schaden</span><strong>(2W6+3)×2</strong></div>
+          <div class="stat" data-pnp-roll="2w20kh1+4" data-pnp-label="Initiative (Vorteil)"><span>Initiative</span><strong>2W20kh1+4</strong></div>
+          <div class="stat" data-pnp-roll="4w6kh3" data-pnp-label="Attribut auswürfeln"><span>Attribut</span><strong>4W6kh3</strong></div>
+          <div class="stat" data-pnp-roll="8w6>=5" data-pnp-label="Shadowrun-Pool"><span>Würfelpool</span><strong>8W6≥5</strong></div>
+          <div class="stat" data-pnp-roll="1w100" data-pnp-label="Probe (HtbaH)"><span>Probe</span><strong>1W100</strong></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Würfelteppich</h2>
+        <p class="sub">Würfel können statt über der ganzen Seite auch in einem eigenen Bereich rollen und liegen bleiben.</p>
+        <div class="mat" id="mat"><div class="hint">Hier rollen die Würfel</div></div>
+        <div class="btns looks" id="looks" style="margin-top:12px"></div>
+        <div class="btns" style="margin-top:8px">
+          <button class="btn" data-pnp-roll="1w4+1w6+1w8+1w10+1w12+1w20+1w100" data-pnp-tray="#mat">Alle Körper <b>W4 … W100</b></button>
+          <button class="btn" data-pnp-roll="4wF" data-pnp-tray="#mat">FATE <b>4wF</b></button>
+          <button class="btn" data-pnp-roll="3w{Treffer}" data-pnp-tray="#mat">Eigener Würfel <b>3w{Treffer}</b></button>
+          <button class="btn" data-pnp-roll="1w[Kopf,Zahl]" data-pnp-tray="#mat">Münze <b>1w[Kopf,Zahl]</b></button>
+          <button class="btn" data-pnp-roll="3w6!" data-pnp-tray="#mat">Explodierend <b>3w6!</b></button>
+          <button class="btn" data-pnp-roll="20w6" data-pnp-tray="#mat">Viele <b>20w6</b></button>
+        </div>
+      </section>
+
+      <div class="row2">
+        <section class="card">
+          <h2>Mitspieler &amp; SL</h2>
+          <p class="sub">Würfe kommen als kurze JSON-Daten übers Netz und werden mit genau diesen Werten nachanimiert. Verdeckte SL-Würfe kommen ohne Werte an.</p>
+          <div class="btns">
+            <button class="btn" id="remote">Wurf von „Mara“ <b>2w20kl1+3</b></button>
+            <button class="btn" id="gm-hidden">Verdeckter SL-Wurf <b>(1w20+4)*2</b></button>
+            <button class="btn" id="gm-reveal" disabled>SL deckt auf</button>
+          </div>
+          <ul class="feed" id="feed"></ul>
+        </section>
+        <section class="card">
+          <h2>Einbinden</h2>
+          <pre>&lt;script src="pnp-dice.js"&gt;&lt;/script&gt;
+&lt;div id="wuerfel"&gt;&lt;/div&gt;
+&lt;script&gt;
+  PnpDice.mount('#wuerfel');
+  PnpDice.bindAttributes();
+
+  // Würfel-Looks: jeder Knopf zeigt eine Vorschau und würfelt alle Körper in diesem Look
+  const looks = document.getElementById('looks');
+  function paintLooks() {
+    looks.innerHTML = '';
+    for (const t of PnpDice.listThemes()) {
+      const b = document.createElement('button');
+      b.className = 'btn';
+      b.setAttribute('aria-pressed', String(t.name === PnpDice.config.theme));
+      b.innerHTML = `<canvas></canvas>${t.label}`;
+      looks.appendChild(b);
+      PnpDice.renderPreview(b.querySelector('canvas'), { theme: t.name, size: 30, color: '#dc2626' });
+      b.addEventListener('click', () => {
+        PnpDice.roll('1w4+1w6+1w8+1w10+1w12+1w20+1w100', { tray: '#mat', theme: t.name, label: t.label });
+      });
+    }
+  }
+  paintLooks();
+  PnpDice.on('settle', r =&gt;
+    sendToDiscord(r.text));
+&lt;/script&gt;</pre>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <footer>PnpDice · Würfel rollen lokal im Browser, nichts verlässt die Seite. Esc räumt die Würfel weg. · <a href="https://github.com/DonDavis-vibe/redneckDice" style="color:inherit">Quellcode auf GitHub</a> (MIT)</footer>
+</div>
+
+<script src="pnp-dice.js"></script>
+<script>
+  document.getElementById('ver').textContent = PnpDice.version;
+
+  PnpDice.defineDie('Treffer', {
+    faces: ['💥', '💥', '⭐', '–', '–', '–'],
+    values: [1, 1, 2, 0, 0, 0],
+    color: '#e11d48',
+  });
+
+  // Komplettes Tool
+  PnpDice.mount('#tool', { storageKey: 'pnp-dice-demo' });
+
+  // Kompakt wie im HeroHQ-Charakterbogen: nur W6 und W100, kein Log, keine eigenen Würfel.
+  // How to be a Hero: 1 auf dem W100 ist kritisch, 100 ein Patzer.
+  PnpDice.mount('#tool-compact', {
+    title: 'GM Würfel-Box',
+    quick: ['1w6', '1w100'],
+    customDice: false,
+    favorites: false,
+    log: false,
+    captureAll: false,
+    storageKey: false,
+  });
+
+  PnpDice.bindAttributes();
+
+  // Netzwerk-Simulation: Ein Wurf wird anderswo ausgewertet, verschickt und hier gezeigt.
+  const feed = document.getElementById('feed');
+  PnpDice.on('roll', r => {
+    const li = document.createElement('li');
+    li.innerHTML = `<b>roll</b> ${r.text.replace(/~~/g, '')}`;
+    feed.prepend(li);
+  });
+  const sent = (wer, daten) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<b>${wer} sendet</b> ${JSON.stringify(daten).replace(/</g, '&lt;')}`;
+    feed.prepend(li);
+  };
+  document.getElementById('remote').addEventListener('click', () => {
+    const fremd = PnpDice.evaluate('2w20kl1+3', { label: 'Mara: Schleichen' });
+    const daten = PnpDice.replayData(fremd);         // geht übers Netz …
+    sent('Mara', daten);
+    PnpDice.replay(JSON.parse(JSON.stringify(daten)));  // … und kommt hier an
+  });
+
+  // Die SL würfelt verdeckt auf ihrem Rechner. Zu den Spielern geht nur Formel und Beschriftung.
+  let slWurf = null;
+  document.getElementById('gm-hidden').addEventListener('click', () => {
+    slWurf = PnpDice.evaluate('(1w20+4)*2', { hidden: true, label: 'SL: Falle' });
+    const daten = PnpDice.replayData(slWurf);
+    sent('SL', daten);
+    PnpDice.replay(JSON.parse(JSON.stringify(daten)));
+    document.getElementById('gm-reveal').disabled = false;
+  });
+  document.getElementById('gm-reveal').addEventListener('click', () => {
+    if (!slWurf) return;
+    PnpDice.reveal(slWurf);                          // jetzt mit Werten, gleiche id: das Log ersetzt den Eintrag
+    const daten = PnpDice.replayData(slWurf);
+    sent('SL', daten);
+    PnpDice.replay(JSON.parse(JSON.stringify(daten)));
+    document.getElementById('gm-reveal').disabled = true;
+  });
+
+  // ---- Vorführ-Modi für die Screenshots im README (scripts/screenshots.sh) ----
+  // #showcase: alle Körper liegen sofort im Würfelteppich, das Tool zeigt Ergebnis und Log.
+  // #looks:    Übersicht aller Würfel-Looks.
+  if (location.hash === '#showcase') {
+    const seq = v => { let i = 0; return () => v[i++ % v.length]; };
+    for (const [f, v, l] of [['1w100', [68]], ['3w20', [6, 19, 20]], ['4w6kh3', [5, 2, 6, 4], 'Stärke'], ['(2w6+3)*2', [5, 6], 'Krit-Schaden']]) {
+      PnpDice.roll(f, { rng: seq(v), label: l, animate: false });
+    }
+    const r = PnpDice.evaluate('1w4+1w6+1w8+1w10+1w12+1w20+1w100', { rng: seq([3, 6, 7, 10, 11, 20, 45]) });
+    PnpDice.show(r, { animate: false, remote: false });
+    // die Würfel ohne Animation in den Teppich legen (interne Zeichenfunktion, nur für das Standbild)
+    const I = PnpDice._internal, tray = PnpDice.createTray('#mat');
+    tray._ensure(); tray.canvas.style.display = 'block'; tray._resize();
+    const specs = I.buildSpecs(r, PnpDice.config);
+    const R = Math.min(38, Math.min(tray.W, tray.H) * 0.07) * Math.min(1, Math.sqrt(9 / specs.length));
+    const sim = I.simulate(specs, tray.W, tray.H, R, { static: true });
+    tray._draw(sim, 0, 1, 400, r, Object.assign({}, PnpDice.config, { showTotal: true }), 0);
+  }
+  if (location.hash === '#looks') {
+    const gal = document.createElement('div');
+    gal.style.cssText = 'min-height:100vh;box-sizing:border-box;background:#0d1417;display:grid;grid-template-columns:repeat(5,1fr);align-content:center;gap:6px 0;padding:24px;color:#cbd5e1;font:600 15px system-ui;text-align:center';
+    document.body.replaceChildren(gal);
+    const shapes = [['d6', '#f59e0b', 6], ['d8', '#0891b2', 8], ['d10', '#7c3aed', 7], ['d12', '#db2777', 12], ['d20', '#dc2626', 20]];
+    for (const t of PnpDice.listThemes()) {
+      const col = document.createElement('div');
+      col.innerHTML = `<div style="margin-bottom:6px">${t.label}</div>`;
+      for (const [shape, color, value] of shapes) {
+        const c = document.createElement('canvas');
+        c.style.cssText = 'width:120px;height:120px;display:block;margin:0 auto';
+        col.appendChild(c);
+        PnpDice.renderPreview(c, { theme: t.name, shape, color, value, size: 120 });
+      }
+      gal.appendChild(col);
+    }
+  }
+</script>
+</body>
+</html>

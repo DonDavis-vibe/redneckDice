@@ -1,0 +1,32 @@
+{
+  "name": "redneck-dice",
+  "version": "0.4.0",
+  "description": "Dice plugin for pen & paper web tools: animated 3D dice, roll log, custom dice, hidden GM rolls. No dependencies.",
+  "main": "pnp-dice.js",
+  "module": "pnp-dice.mjs",
+  "exports": {
+    ".": {
+      "import": "./pnp-dice.mjs",
+      "require": "./pnp-dice.js"
+    }
+  },
+  "files": ["pnp-dice.js", "pnp-dice.mjs", "README.md", "CHANGELOG.md", "LICENSE", "docs/ANLEITUNG.md"],
+  "scripts": {
+    "test": "node --test test/engine.test.cjs",
+    "dev": "python3 -m http.server 8777"
+  },
+  "keywords": ["dice", "würfel", "pen-and-paper", "rpg", "ttrpg", "tabletop", "3d-dice", "dice-roller", "dice-notation", "dnd"],
+  "author": "Don Davis (https://github.com/DonDavis-vibe)",
+  "homepage": "https://dondavis-vibe.github.io/redneckDice/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DonDavis-vibe/redneckDice.git"
+  },
+  "bugs": {
+    "url": "https://github.com/DonDavis-vibe/redneckDice/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}
