@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PnpDice – Würfel-Plugin für Pen & Paper</title>
+<title>redneckDice – Würfel-Plugin für Pen & Paper</title>
 <meta name="description" content="Unabhängiges Würfel-Plugin für Pen-&-Paper-Webapps: animierte 3D-Würfel, Würfel-Log, eigene Würfel. Ohne Abhängigkeiten.">
 <style>
   :root {
@@ -69,7 +69,7 @@
 <div class="wrap">
   <header class="top">
     <div>
-      <h1>Pnp<span>Dice</span></h1>
+      <h1>redneck<span>Dice</span></h1>
       <p class="lead">Ein Würfel-Plugin für alle Pen-&-Paper-Webapps: echte 3D-Würfel mit Physik, Würfel-Log, eigene Würfel und eine Formelsprache von <code class="inline">3w20</code> bis <code class="inline">12w6&gt;=5</code>. Eine Datei, keine Abhängigkeiten, keine externen Aufrufe.</p>
     </div>
     <span class="pill">v<span id="ver"></span> · MIT</span>
@@ -124,30 +124,30 @@
         </section>
         <section class="card">
           <h2>Einbinden</h2>
-          <pre>&lt;script src="pnp-dice.js"&gt;&lt;/script&gt;
+          <pre>&lt;script src="redneck-dice.js"&gt;&lt;/script&gt;
 &lt;div id="wuerfel"&gt;&lt;/div&gt;
 &lt;script&gt;
-  PnpDice.mount('#wuerfel');
-  PnpDice.bindAttributes();
+  RedneckDice.mount('#wuerfel');
+  RedneckDice.bindAttributes();
 
   // Würfel-Looks: jeder Knopf zeigt eine Vorschau und würfelt alle Körper in diesem Look
   const looks = document.getElementById('looks');
   function paintLooks() {
     looks.innerHTML = '';
-    for (const t of PnpDice.listThemes()) {
+    for (const t of RedneckDice.listThemes()) {
       const b = document.createElement('button');
       b.className = 'btn';
-      b.setAttribute('aria-pressed', String(t.name === PnpDice.config.theme));
+      b.setAttribute('aria-pressed', String(t.name === RedneckDice.config.theme));
       b.innerHTML = `<canvas></canvas>${t.label}`;
       looks.appendChild(b);
-      PnpDice.renderPreview(b.querySelector('canvas'), { theme: t.name, size: 30, color: '#dc2626' });
+      RedneckDice.renderPreview(b.querySelector('canvas'), { theme: t.name, size: 30, color: '#dc2626' });
       b.addEventListener('click', () => {
-        PnpDice.roll('1w4+1w6+1w8+1w10+1w12+1w20+1w100', { tray: '#mat', theme: t.name, label: t.label });
+        RedneckDice.roll('1w4+1w6+1w8+1w10+1w12+1w20+1w100', { tray: '#mat', theme: t.name, label: t.label });
       });
     }
   }
   paintLooks();
-  PnpDice.on('settle', r =&gt;
+  RedneckDice.on('settle', r =&gt;
     sendToDiscord(r.text));
 &lt;/script&gt;</pre>
         </section>
@@ -155,25 +155,25 @@
     </div>
   </div>
 
-  <footer>PnpDice · Würfel rollen lokal im Browser, nichts verlässt die Seite. Esc räumt die Würfel weg. · <a href="https://github.com/DonDavis-vibe/redneckDice" style="color:inherit">Quellcode auf GitHub</a> (MIT)</footer>
+  <footer>redneckDice · Würfel rollen lokal im Browser, nichts verlässt die Seite. Esc räumt die Würfel weg. · <a href="https://github.com/DonDavis-vibe/redneckDice" style="color:inherit">Quellcode auf GitHub</a> (MIT)</footer>
 </div>
 
-<script src="pnp-dice.js"></script>
+<script src="redneck-dice.js"></script>
 <script>
-  document.getElementById('ver').textContent = PnpDice.version;
+  document.getElementById('ver').textContent = RedneckDice.version;
 
-  PnpDice.defineDie('Treffer', {
+  RedneckDice.defineDie('Treffer', {
     faces: ['💥', '💥', '⭐', '–', '–', '–'],
     values: [1, 1, 2, 0, 0, 0],
     color: '#e11d48',
   });
 
   // Komplettes Tool
-  PnpDice.mount('#tool', { storageKey: 'pnp-dice-demo' });
+  RedneckDice.mount('#tool', { storageKey: 'redneck-dice-demo' });
 
   // Kompakt wie im HeroHQ-Charakterbogen: nur W6 und W100, kein Log, keine eigenen Würfel.
   // How to be a Hero: 1 auf dem W100 ist kritisch, 100 ein Patzer.
-  PnpDice.mount('#tool-compact', {
+  RedneckDice.mount('#tool-compact', {
     title: 'GM Würfel-Box',
     quick: ['1w6', '1w100'],
     customDice: false,
@@ -183,11 +183,11 @@
     storageKey: false,
   });
 
-  PnpDice.bindAttributes();
+  RedneckDice.bindAttributes();
 
   // Netzwerk-Simulation: Ein Wurf wird anderswo ausgewertet, verschickt und hier gezeigt.
   const feed = document.getElementById('feed');
-  PnpDice.on('roll', r => {
+  RedneckDice.on('roll', r => {
     const li = document.createElement('li');
     li.innerHTML = `<b>roll</b> ${r.text.replace(/~~/g, '')}`;
     feed.prepend(li);
@@ -198,27 +198,27 @@
     feed.prepend(li);
   };
   document.getElementById('remote').addEventListener('click', () => {
-    const fremd = PnpDice.evaluate('2w20kl1+3', { label: 'Mara: Schleichen' });
-    const daten = PnpDice.replayData(fremd);         // geht übers Netz …
+    const fremd = RedneckDice.evaluate('2w20kl1+3', { label: 'Mara: Schleichen' });
+    const daten = RedneckDice.replayData(fremd);         // geht übers Netz …
     sent('Mara', daten);
-    PnpDice.replay(JSON.parse(JSON.stringify(daten)));  // … und kommt hier an
+    RedneckDice.replay(JSON.parse(JSON.stringify(daten)));  // … und kommt hier an
   });
 
   // Die SL würfelt verdeckt auf ihrem Rechner. Zu den Spielern geht nur Formel und Beschriftung.
   let slWurf = null;
   document.getElementById('gm-hidden').addEventListener('click', () => {
-    slWurf = PnpDice.evaluate('(1w20+4)*2', { hidden: true, label: 'SL: Falle' });
-    const daten = PnpDice.replayData(slWurf);
+    slWurf = RedneckDice.evaluate('(1w20+4)*2', { hidden: true, label: 'SL: Falle' });
+    const daten = RedneckDice.replayData(slWurf);
     sent('SL', daten);
-    PnpDice.replay(JSON.parse(JSON.stringify(daten)));
+    RedneckDice.replay(JSON.parse(JSON.stringify(daten)));
     document.getElementById('gm-reveal').disabled = false;
   });
   document.getElementById('gm-reveal').addEventListener('click', () => {
     if (!slWurf) return;
-    PnpDice.reveal(slWurf);                          // jetzt mit Werten, gleiche id: das Log ersetzt den Eintrag
-    const daten = PnpDice.replayData(slWurf);
+    RedneckDice.reveal(slWurf);                          // jetzt mit Werten, gleiche id: das Log ersetzt den Eintrag
+    const daten = RedneckDice.replayData(slWurf);
     sent('SL', daten);
-    PnpDice.replay(JSON.parse(JSON.stringify(daten)));
+    RedneckDice.replay(JSON.parse(JSON.stringify(daten)));
     document.getElementById('gm-reveal').disabled = true;
   });
 
@@ -228,31 +228,31 @@
   if (location.hash === '#showcase') {
     const seq = v => { let i = 0; return () => v[i++ % v.length]; };
     for (const [f, v, l] of [['1w100', [68]], ['3w20', [6, 19, 20]], ['4w6kh3', [5, 2, 6, 4], 'Stärke'], ['(2w6+3)*2', [5, 6], 'Krit-Schaden']]) {
-      PnpDice.roll(f, { rng: seq(v), label: l, animate: false });
+      RedneckDice.roll(f, { rng: seq(v), label: l, animate: false });
     }
-    const r = PnpDice.evaluate('1w4+1w6+1w8+1w10+1w12+1w20+1w100', { rng: seq([3, 6, 7, 10, 11, 20, 45]) });
-    PnpDice.show(r, { animate: false, remote: false });
+    const r = RedneckDice.evaluate('1w4+1w6+1w8+1w10+1w12+1w20+1w100', { rng: seq([3, 6, 7, 10, 11, 20, 45]) });
+    RedneckDice.show(r, { animate: false, remote: false });
     // die Würfel ohne Animation in den Teppich legen (interne Zeichenfunktion, nur für das Standbild)
-    const I = PnpDice._internal, tray = PnpDice.createTray('#mat');
+    const I = RedneckDice._internal, tray = RedneckDice.createTray('#mat');
     tray._ensure(); tray.canvas.style.display = 'block'; tray._resize();
-    const specs = I.buildSpecs(r, PnpDice.config);
+    const specs = I.buildSpecs(r, RedneckDice.config);
     const R = Math.min(38, Math.min(tray.W, tray.H) * 0.07) * Math.min(1, Math.sqrt(9 / specs.length));
     const sim = I.simulate(specs, tray.W, tray.H, R, { static: true });
-    tray._draw(sim, 0, 1, 400, r, Object.assign({}, PnpDice.config, { showTotal: true }), 0);
+    tray._draw(sim, 0, 1, 400, r, Object.assign({}, RedneckDice.config, { showTotal: true }), 0);
   }
   if (location.hash === '#looks') {
     const gal = document.createElement('div');
     gal.style.cssText = 'min-height:100vh;box-sizing:border-box;background:#0d1417;display:grid;grid-template-columns:repeat(5,1fr);align-content:center;gap:6px 0;padding:24px;color:#cbd5e1;font:600 15px system-ui;text-align:center';
     document.body.replaceChildren(gal);
     const shapes = [['d6', '#f59e0b', 6], ['d8', '#0891b2', 8], ['d10', '#7c3aed', 7], ['d12', '#db2777', 12], ['d20', '#dc2626', 20]];
-    for (const t of PnpDice.listThemes()) {
+    for (const t of RedneckDice.listThemes()) {
       const col = document.createElement('div');
       col.innerHTML = `<div style="margin-bottom:6px">${t.label}</div>`;
       for (const [shape, color, value] of shapes) {
         const c = document.createElement('canvas');
         c.style.cssText = 'width:120px;height:120px;display:block;margin:0 auto';
         col.appendChild(c);
-        PnpDice.renderPreview(c, { theme: t.name, shape, color, value, size: 120 });
+        RedneckDice.renderPreview(c, { theme: t.name, shape, color, value, size: 120 });
       }
       gal.appendChild(col);
     }

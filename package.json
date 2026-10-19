@@ -1,16 +1,16 @@
 {
   "name": "redneck-dice",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Dice plugin for pen & paper web tools: animated 3D dice, roll log, custom dice, hidden GM rolls. No dependencies.",
-  "main": "pnp-dice.js",
-  "module": "pnp-dice.mjs",
+  "main": "redneck-dice.js",
+  "module": "redneck-dice.mjs",
   "exports": {
     ".": {
-      "import": "./pnp-dice.mjs",
-      "require": "./pnp-dice.js"
+      "import": "./redneck-dice.mjs",
+      "require": "./redneck-dice.js"
     }
   },
-  "files": ["pnp-dice.js", "pnp-dice.mjs", "README.md", "CHANGELOG.md", "LICENSE", "docs/ANLEITUNG.md"],
+  "files": ["redneck-dice.js", "redneck-dice.mjs", "README.md", "CHANGELOG.md", "LICENSE", "docs/ANLEITUNG.md"],
   "scripts": {
     "test": "node --test test/engine.test.cjs",
     "dev": "python3 -m http.server 8777"

@@ -1,12 +1,12 @@
 /*!
- * PnpDice 0.4.0 – Würfel-Plugin für Pen-&-Paper-Webapps
+ * redneckDice 0.5.0 – Würfel-Plugin für Pen-&-Paper-Webapps
  * Animierte 3D-Würfel, Würfel-Log, eigene Würfel. Keine Abhängigkeiten, keine
  * externen Aufrufe (keine CDNs, keine Webfonts). Lizenz: MIT, © 2026 Don Davis.
  * https://github.com/DonDavis-vibe/redneckDice
  *
- *   <script src="pnp-dice.js"></script>
- *   PnpDice.mount('#wuerfel');                    // komplettes Würfel-Tool
- *   PnpDice.roll('3w20+2').then(r => r.total);    // nur werfen, 3D-Würfel über der Seite
+ *   <script src="redneck-dice.js"></script>
+ *   RedneckDice.mount('#wuerfel');                    // komplettes Würfel-Tool
+ *   RedneckDice.roll('3w20+2').then(r => r.total);    // nur werfen, 3D-Würfel über der Seite
  *
  * Aufbau der Datei:
  *   1. Sprache, Konfiguration, Ereignisse
@@ -17,7 +17,7 @@
 (function (root) {
   'use strict';
 
-  const VERSION = '0.4.0';
+  const VERSION = '0.5.0';
   const hasDOM = typeof window !== 'undefined' && typeof document !== 'undefined';
 
   // =========================================================================
@@ -215,7 +215,7 @@
     hiddenAnimation: 'open', // verdeckte Würfe: 'open' (du siehst die Werte) | 'masked' (auch du siehst nur "?")
     colors: Object.assign({}, DEFAULT_COLORS),
     crit: null,          // function(result) -> 'crit' | 'fumble' | null, überschreibt die Standardregel
-    rng: null,           // function(max) -> 1..max, z. B. PnpDice.createRng('seed')
+    rng: null,           // function(max) -> 1..max, z. B. RedneckDice.createRng('seed')
   };
 
   function configure(opts) {
@@ -238,7 +238,7 @@
   }
   function emit(type, payload) {
     (listeners[type] || []).slice().forEach(fn => {
-      try { fn(payload); } catch (e) { console.error('[PnpDice]', e); }
+      try { fn(payload); } catch (e) { console.error('[RedneckDice]', e); }
     });
   }
 
@@ -249,7 +249,7 @@
   class DiceError extends Error {
     constructor(code, message, pos) {
       super(message);
-      this.name = 'PnpDiceError';
+      this.name = 'RedneckDiceError';
       this.code = code;
       this.pos = pos;
     }
@@ -271,7 +271,7 @@
 
   /**
    * Zufall mit vorgegebenen Werten, in der Reihenfolge der Aufrufe: damit lässt sich ein Ergebnis, das die App schon
-   * ausgewürfelt hat, mit den 3D-Würfeln zeigen (PnpDice.roll('1w100', { rng: PnpDice.fixedRng([37]) })). Jeder Wert
+   * ausgewürfelt hat, mit den 3D-Würfeln zeigen (RedneckDice.roll('1w100', { rng: RedneckDice.fixedRng([37]) })). Jeder Wert
    * wird auf 1..max begrenzt. Sind die Werte aufgebraucht, würfelt `rest` (Standard: zufällig) weiter.
    */
   function fixedRng(values, rest) {
@@ -777,7 +777,7 @@
   }
 
   /**
-   * Formel auswerten, ohne Animation. Wirft PnpDiceError bei ungültiger Formel.
+   * Formel auswerten, ohne Animation. Wirft RedneckDiceError bei ungültiger Formel.
    * opts: { lang, modifier, label, rng, crit, hidden }
    */
   function evaluate(notation, opts) {
@@ -1785,7 +1785,7 @@
         e.preventDefault();
         e.stopPropagation();
         const { result, opts } = this.last;
-        reroll(result, hit.gi, hit.ri, Object.assign({}, opts, { tray: this, source: result.source })).catch(err => console.warn('[PnpDice]', err.message));
+        reroll(result, hit.gi, hit.ri, Object.assign({}, opts, { tray: this, source: result.source })).catch(err => console.warn('[RedneckDice]', err.message));
       };
     }
 
@@ -1814,7 +1814,7 @@
     _ensure() {
       if (this.canvas) return;
       const c = document.createElement('canvas');
-      c.className = 'pnp-dice-tray';
+      c.className = 'redneck-dice-tray';
       c.setAttribute('aria-hidden', 'true');
       const st = c.style;
       st.pointerEvents = 'none';
@@ -1902,7 +1902,7 @@
           let alpha = isStatic ? Math.min(1, el / 200) : 1;
           if (after > hold) alpha *= 1 - Math.min(1, (after - hold) / 450);
           try { this._draw(sim, step, alpha, after, result, o, hidden); }
-          catch (err) { console.error('[PnpDice]', err); this.clear(); return; }
+          catch (err) { console.error('[RedneckDice]', err); this.clear(); return; }
           if (after > hold + 450) { this.clear(); return; }
           if (hold === Infinity && after > 700) { this.raf = 0; return; }
           this.raf = requestAnimationFrame(frame);
@@ -2090,9 +2090,9 @@
         copy.id = result.id;
         return tray.play(copy, Object.assign({}, o, { rerollClick: false })).then(() => result, () => result);
       }
-      return tray.play(result, o).catch(err => { console.error('[PnpDice]', err); return result; });
+      return tray.play(result, o).catch(err => { console.error('[RedneckDice]', err); return result; });
     } catch (err) {
-      console.error('[PnpDice]', err);
+      console.error('[RedneckDice]', err);
       return Promise.resolve(result);
     }
   }
@@ -2136,7 +2136,7 @@
 
   function show(result, opts) {
     const o = Object.assign({}, config, opts || {});
-    if (!result || !Array.isArray(result.groups)) return Promise.reject(new TypeError('PnpDice.show: kein Wurf-Ergebnis'));
+    if (!result || !Array.isArray(result.groups)) return Promise.reject(new TypeError('RedneckDice.show: kein Wurf-Ergebnis'));
     if (o.remote !== false) result.remote = true;
     emit('roll', result);
     return animate(result, o).then(() => { emit('settle', result); return result; });
@@ -2177,7 +2177,7 @@
   /**
    * Aus replayData() das Ergebnis wieder aufbauen (ohne Animation). Prüft alles, denn die Daten kommen von anderen:
    * die Formel läuft durch den normalen Parser mit seinen Grenzen, die Werte müssen ganze Zahlen sein.
-   * Wirft PnpDiceError bei ungültigen Daten.
+   * Wirft RedneckDiceError bei ungültigen Daten.
    */
   function replayResult(data, opts) {
     const bad = msg => new DiceError('replay', msg);
@@ -2395,7 +2395,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pd-a);outline-o
     collapsible: true,
     collapsed: false,
     storageKey: 'pnp-dice',     // false = nichts speichern
-    captureAll: true,           // auch Würfe von außerhalb (PnpDice.roll, data-pnp-roll, show) anzeigen
+    captureAll: true,           // auch Würfe von außerhalb (RedneckDice.roll, data-pnp-roll, show) anzeigen
     tray: undefined,            // undefined = globale Einstellung
     sound: false,
     animate: true,
@@ -2409,7 +2409,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pd-a);outline-o
   class Widget {
     constructor(target, options) {
       const el = typeof target === 'string' ? document.querySelector(target) : target;
-      if (!el) throw new Error('PnpDice.mount: Ziel-Element nicht gefunden');
+      if (!el) throw new Error('RedneckDice.mount: Ziel-Element nicht gefunden');
       this.o = Object.assign({}, WIDGET_DEFAULTS, options || {});
       this.lang = resolveLang(this.o.lang || config.lang);
       this.t = I18N[this.lang];
@@ -2423,7 +2423,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pd-a);outline-o
       this.listeners = {};
       this._results = new Map();
       this.host = document.createElement('div');
-      this.host.className = 'pnp-dice';
+      this.host.className = 'redneck-dice';
       el.appendChild(this.host);
       this.root = this.host.attachShadow({ mode: 'open' });
       this.root.innerHTML = `<style>${WIDGET_CSS}</style>${this._markup()}`;
@@ -2916,7 +2916,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pd-a);outline-o
       const opts = {};
       if (t.dataset.pnpLabel) opts.label = t.dataset.pnpLabel;
       if (t.dataset.pnpTray) opts.tray = t.dataset.pnpTray;
-      roll(t.dataset.pnpRoll, opts).catch(err => console.warn('[PnpDice]', err.message));
+      roll(t.dataset.pnpRoll, opts).catch(err => console.warn('[RedneckDice]', err.message));
     };
     el.addEventListener('click', handler);
     return () => el.removeEventListener('click', handler);
@@ -2930,7 +2930,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pd-a);outline-o
     shape: 'd6', color: DEFAULT_COLORS.fudge, builtin: true,
   });
 
-  const PnpDice = {
+  const RedneckDice = {
     version: VERSION,
     configure, config,
     parse, format, evaluate, roll, show,
@@ -2945,6 +2945,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--pd-a);outline-o
     _internal: { getShape, hull, buildSpecs, simulate, shapeFor, overlay: () => overlayTray },
   };
 
-  if (typeof module === 'object' && module && module.exports) module.exports = PnpDice;
-  root.PnpDice = PnpDice;
+  if (typeof module === 'object' && module && module.exports) module.exports = RedneckDice;
+  root.RedneckDice = RedneckDice;
+  // früherer Name, damit bestehende Einbauten (PnpDice.roll …) weiterlaufen
+  root.PnpDice = RedneckDice;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

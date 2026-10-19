@@ -29,22 +29,22 @@ redneckDice drops into any tabletop RPG web app, from character sheets and GM da
 ## Quick start
 
 ```html
-<script src="pnp-dice.js"></script>
+<script src="redneck-dice.js"></script>
 <div id="dice"></div>
 <script>
-  PnpDice.mount('#dice');      // the full dice widget
-  PnpDice.bindAttributes();    // every [data-pnp-roll] element rolls on click
+  RedneckDice.mount('#dice');      // the full dice widget
+  RedneckDice.bindAttributes();    // every [data-pnp-roll] element rolls on click
 </script>
 
 <button data-pnp-roll="1d20+5" data-pnp-label="Attack">Attack</button>
 ```
 
-> The library is exposed as the global `PnpDice` (file `pnp-dice.js`). redneckDice is the project name.
+> The library is exposed as the global `RedneckDice` (file `redneck-dice.js`). The former name `PnpDice` still works as an alias, so existing integrations keep running. The `data-pnp-*` attributes, the `--pd-*` CSS properties and the default `storageKey: 'pnp-dice'` keep their names for the same reason.
 
 As an ES module, which also works with Vite and other bundlers:
 
 ```js
-import PnpDice, { roll, mount } from './pnp-dice.mjs';
+import RedneckDice, { roll, mount } from './redneck-dice.mjs';
 ```
 
 To run the demo locally:
@@ -60,18 +60,18 @@ Then open http://localhost:8777.
 ## Rolling without the widget
 
 ```js
-const r = await PnpDice.roll('3d20+2', { label: 'Check' });   // 3D dice over the page
+const r = await RedneckDice.roll('3d20+2', { label: 'Check' });   // 3D dice over the page
 r.total      // 47
 r.detail     // "[6, 19, 20] + 2 = 47"
 r.text       // "Check – 3d20+2: [6, 19, 20] + 2 = 47"
 r.crit       // true if every die shows its maximum (the rule can be changed)
 
-PnpDice.evaluate('4d6kh3');                   // evaluate only: synchronous, no animation
-PnpDice.roll('2d6', { tray: '#mat' });        // roll inside an element instead of over the page
-PnpDice.roll('1d20', { animate: false });     // no animation
+RedneckDice.evaluate('4d6kh3');                   // evaluate only: synchronous, no animation
+RedneckDice.roll('2d6', { tray: '#mat' });        // roll inside an element instead of over the page
+RedneckDice.roll('1d20', { animate: false });     // no animation
 ```
 
-`roll()` returns a promise that resolves once the dice have landed. If the formula is invalid, the promise rejects with a `PnpDiceError` whose message is in the configured language.
+`roll()` returns a promise that resolves once the dice have landed. If the formula is invalid, the promise rejects with a `RedneckDiceError` whose message is in the configured language.
 
 ## Dice notation
 
@@ -104,17 +104,17 @@ Limits: 1 to 100 dice per group, 1 to 10000 sides, at most 20 dice groups and nu
 
 ```js
 // Symbols with values: the values are summed
-PnpDice.defineDie('Hit', {
+RedneckDice.defineDie('Hit', {
   faces: ['💥', '💥', '⭐', '–', '–', '–'],
   values: [1, 1, 2, 0, 0, 0],
   color: '#e11d48',
 });
 
 // Symbols only: results are counted ("2× Sun · 1× Moon")
-PnpDice.defineDie('Omen', ['Sun', 'Moon', 'Star']);
+RedneckDice.defineDie('Omen', ['Sun', 'Moon', 'Star']);
 
 // Force a body
-PnpDice.defineDie('Direction', { faces: ['N', 'E', 'S', 'W'], shape: 'd4' });
+RedneckDice.defineDie('Direction', { faces: ['N', 'E', 'S', 'W'], shape: 'd4' });
 ```
 
 Players can also create their own dice in the widget with "New die". They are stored in `localStorage`.
@@ -122,7 +122,7 @@ Players can also create their own dice in the widget with "New die". They are st
 ## The widget
 
 ```js
-const widget = PnpDice.mount('#dice', {
+const widget = RedneckDice.mount('#dice', {
   title: 'GM dice box',
   quick: ['1d6', '1d100'],      // quick dice; also { notation, label, color }
   log: true,                    // show the roll log
@@ -181,8 +181,8 @@ You can also target `::part(panel|header|body|quick|display|log)`.
 ## Global settings
 
 ```js
-PnpDice.configure({
-  lang: 'auto',            // 'de' | 'en' | 'auto'; add languages via PnpDice.i18n.xx = {…}
+RedneckDice.configure({
+  lang: 'auto',            // 'de' | 'en' | 'auto'; add languages via RedneckDice.i18n.xx = {…}
   animate: 'auto',         // true | false | 'auto' (with prefers-reduced-motion the dice appear at rest)
   sound: false, volume: 0.6,
   tray: 'overlay',         // 'overlay' | Element | '#selector' | false
@@ -195,7 +195,7 @@ PnpDice.configure({
   hiddenAnimation: 'open', // hidden rolls: 'open' (you see the values) | 'masked' (you also see "?", e.g. on a projector)
   colors: { 6: '#f59e0b', 20: '#dc2626', custom: '#0d9488' },
   crit: null,              // your own critical/fumble rule, see below
-  rng: null,               // your own RNG, e.g. PnpDice.createRng('seed')
+  rng: null,               // your own RNG, e.g. RedneckDice.createRng('seed')
 });
 ```
 
@@ -205,7 +205,7 @@ By default, a roll with a single dice group is a critical when every die shows i
 
 ```js
 // "How to be a Hero": a 1 on the d100 is a critical, 100 a fumble
-PnpDice.configure({
+RedneckDice.configure({
   crit: r => {
     const g = r.groups[0];
     if (!g || g.sides !== 100) return null;
@@ -228,10 +228,10 @@ PnpDice.configure({
 | `neon` | dark body, glowing edges and numbers, a light spot instead of a shadow |
 
 ```js
-PnpDice.configure({ theme: 'metal' });          // all rolls
-PnpDice.roll('1d20', { theme: 'neon' });        // this roll only
-PnpDice.mount('#dice', { theme: 'gem' });       // fixed for this widget, no player choice …
-PnpDice.mount('#dice', { looks: false });       // … or hide the picker
+RedneckDice.configure({ theme: 'metal' });          // all rolls
+RedneckDice.roll('1d20', { theme: 'neon' });        // this roll only
+RedneckDice.mount('#dice', { theme: 'gem' });       // fixed for this widget, no player choice …
+RedneckDice.mount('#dice', { looks: false });       // … or hide the picker
 ```
 
 In the widget, the palette button opens the look picker with live previews. The choice is saved, and unless the app passes a fixed `theme`, it applies to every roll on the page.
@@ -239,7 +239,7 @@ In the widget, the palette button opens the look picker with live previews. The 
 Build your own look from these parts. Colours can be `'die'` (the die colour), a hex value or a function `(dieRgb, bodyRgb) => [r, g, b]`:
 
 ```js
-PnpDice.defineTheme('blood', {
+RedneckDice.defineTheme('blood', {
   label: { de: 'Blutstein', en: 'Bloodstone' },
   body: '#3b0a0a',
   ink: '#fca5a5',           // numbers; 'auto' picks light or dark to match the body
@@ -251,8 +251,8 @@ PnpDice.defineTheme('blood', {
   floor: 'tint',            // 'shadow' | 'tint' | 'glow'
 });
 
-PnpDice.listThemes();                                                              // [{ name, label }, …]
-PnpDice.renderPreview(canvas, { theme: 'blood', shape: 'd20', color: '#dc2626', value: 20 });   // preview image
+RedneckDice.listThemes();                                                              // [{ name, label }, …]
+RedneckDice.renderPreview(canvas, { theme: 'blood', shape: 'd20', color: '#dc2626', value: 20 });   // preview image
 ```
 
 ## Rerolling a single die
@@ -260,10 +260,10 @@ PnpDice.renderPreview(canvas, { theme: 'blood', shape: 'd20', color: '#dc2626', 
 Once the dice have landed, every die can be clicked: luck points, Edge, inspiration. Only that die rolls again while the others stay exactly where they are. The total, keep/drop, successes and criticals are recalculated. The overlay never blocks your page, because it only accepts clicks directly over a die, and the dice stay visible while the mouse is over one. In the widget, the dice bar under the result does the same.
 
 ```js
-const r = await PnpDice.roll('4d6kh3');
-const next = await PnpDice.reroll(r, 0, 2);   // group 0, die 2: animated, the others stay put
-PnpDice.rerollDie(r, 0, 2);                    // same without animation
-PnpDice.applyReroll(r, 0, 2, 6);               // set a die to a fixed value
+const r = await RedneckDice.roll('4d6kh3');
+const next = await RedneckDice.reroll(r, 0, 2);   // group 0, die 2: animated, the others stay put
+RedneckDice.rerollDie(r, 0, 2);                    // same without animation
+RedneckDice.applyReroll(r, 0, 2, 6);               // set a die to a fixed value
 next.id === r.id;    // true: same roll, so the log replaces the entry
 next.rerolls;        // [[0, 2, 6]]; the old value is in next.groups[0].rolls[2].manual
 ```
@@ -273,9 +273,9 @@ A reroll fires `roll` and `settle` like a normal roll. Rerolled dice do not expl
 ## Hidden GM rolls
 
 ```js
-const r = await PnpDice.roll('1d20+5 # Perception', { hidden: true });
-PnpDice.replayData(r);   // { n: '1d20+5', h: 1, i: '…', l: 'Perception' }: no values!
-PnpDice.reveal(r);       // fires 'reveal'; replayData now carries the real values under the same id
+const r = await RedneckDice.roll('1d20+5 # Perception', { hidden: true });
+RedneckDice.replayData(r);   // { n: '1d20+5', h: 1, i: '…', l: 'Perception' }: no values!
+RedneckDice.reveal(r);       // fires 'reveal'; replayData now carries the real values under the same id
 ```
 
 The GM sees their roll as usual, marked as hidden and with a "Reveal" button. In the log the value stays blurred until hovered, which helps on a shared screen. Players who receive the roll via `replay()` see `?` dice and "rolled in secret". After the reveal, the real roll replaces that log entry. With `hiddenAnimation: 'masked'` the GM's own dice show `?` too. In the widget, the eye next to "Roll" toggles hidden rolls.
@@ -283,24 +283,24 @@ The GM sees their roll as usual, marked as hidden and with a "Reveal" button. In
 ## Events and multiplayer
 
 ```js
-PnpDice.on('roll', r => { /* … */ });     // immediately, the dice are still rolling
-PnpDice.on('settle', r => { /* … */ });   // the dice have landed and the result is shown
-PnpDice.on('reveal', r => { /* … */ });   // a hidden roll was revealed
-PnpDice.on('dice', list => { /* … */ });  // custom dice were added or removed
+RedneckDice.on('roll', r => { /* … */ });     // immediately, the dice are still rolling
+RedneckDice.on('settle', r => { /* … */ });   // the dice have landed and the result is shown
+RedneckDice.on('reveal', r => { /* … */ });   // a hidden roll was revealed
+RedneckDice.on('dice', list => { /* … */ });  // custom dice were added or removed
 ```
 
-Sending a whole result object works (`PnpDice.show(result)` animates it on the receiving side), but `replayData` is much smaller. It sends only the formula and the raw random values, and the receiver rebuilds the roll through the regular parser with all of its limits and validation:
+Sending a whole result object works (`RedneckDice.show(result)` animates it on the receiving side), but `replayData` is much smaller. It sends only the formula and the raw random values, and the receiver rebuilds the roll through the regular parser with all of its limits and validation:
 
 ```js
 // sender
-PnpDice.on('roll', r => { const d = PnpDice.replayData(r); if (d && !r.remote) socket.send(JSON.stringify(d)); });
-PnpDice.on('reveal', r => socket.send(JSON.stringify(PnpDice.replayData(r))));
+RedneckDice.on('roll', r => { const d = RedneckDice.replayData(r); if (d && !r.remote) socket.send(JSON.stringify(d)); });
+RedneckDice.on('reveal', r => socket.send(JSON.stringify(RedneckDice.replayData(r))));
 
-// receiver: same values, same animation, log entry; rejects with PnpDiceError on bad data
-socket.onmessage = e => PnpDice.replay(JSON.parse(e.data)).catch(() => {});
+// receiver: same values, same animation, log entry; rejects with RedneckDiceError on bad data
+socket.onmessage = e => RedneckDice.replay(JSON.parse(e.data)).catch(() => {});
 ```
 
-The data also carries the roll id (`i`), single-die rerolls (`x`) and, for hidden rolls, only `h: 1` instead of values. `replayData` returns `null` for rolls with custom dice (the receiver doesn't know them) and for oversized rolls. `PnpDice.replayResult(data)` rebuilds the result without animation.
+The data also carries the roll id (`i`), single-die rerolls (`x`) and, for hidden rolls, only `h: 1` instead of values. `replayData` returns `null` for rolls with custom dice (the receiver doesn't know them) and for oversized rolls. `RedneckDice.replayResult(data)` rebuilds the result without animation.
 
 A result contains `id`, `notation`, `label`, `total`, `display`, `unit`, `detail`, `text`, `groups` (every single die), `modifier`, `successes`, `tally`, `min`, `max`, `crit`, `fumble`, `raw`, `timestamp`, and when applicable `hidden`, `remote` and `rerolls`. In `detail` and `text`, dropped dice are marked as `~~5~~`, which Discord renders as strikethrough.
 
@@ -309,8 +309,8 @@ A result contains `id`, `notation`, `label`, `total`, `display`, `unit`, `detail
 If your app has already rolled (a check, damage …), `fixedRng` makes the 3D dice land on exactly those values:
 
 ```js
-PnpDice.roll('1d100', { rng: PnpDice.fixedRng([37]), label: 'Check' });
-PnpDice.roll('5d10',  { rng: PnpDice.fixedRng([7, 3, 9, 1, 4]) });
+RedneckDice.roll('1d100', { rng: RedneckDice.fixedRng([37]), label: 'Check' });
+RedneckDice.roll('5d10',  { rng: RedneckDice.fixedRng([7, 3, 9, 1, 4]) });
 ```
 
 ## How the animation works

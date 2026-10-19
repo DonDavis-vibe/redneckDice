@@ -4,7 +4,7 @@
 
 ![redneckDice: Würfel-Tool mit Log und Würfelteppich mit allen Körpern](screenshot.png)
 
-redneckDice ist ein Würfel-Plugin, das sich in beliebige Pen-&-Paper-Webapps einbauen lässt, ob Charakterbogen, SL-Dashboard oder virtueller Spieltisch. Es läuft komplett im Browser, lädt nichts nach und schickt nichts nach außen: keine CDNs, keine Webfonts, kein Server. Im Code heißt die Bibliothek `PnpDice` (Datei `pnp-dice.js`).
+redneckDice ist ein Würfel-Plugin, das sich in beliebige Pen-&-Paper-Webapps einbauen lässt, ob Charakterbogen, SL-Dashboard oder virtueller Spieltisch. Es läuft komplett im Browser, lädt nichts nach und schickt nichts nach außen: keine CDNs, keine Webfonts, kein Server. Im Code heißt die Bibliothek `RedneckDice` (Datei `redneck-dice.js`). Der frühere Name `PnpDice` funktioniert weiter, bestehende Einbauten laufen also ohne Änderung. Aus demselben Grund behalten die Attribute `data-pnp-*`, die CSS-Variablen `--pd-*` und der Standard-Speicherschlüssel `pnp-dice` ihre Namen.
 
 - **Animierte 3D-Würfel:** W4, W6, W8, W10, W12, W20 und W100 (als Zehner- plus Einer-W10) mit Physik, Schatten, Würfelgeräuschen (optional, per WebAudio erzeugt) und einer Ergebnis-Plakette, in fünf Looks: Klassisch, Edelstein, Metall, Elfenbein, Neon
 - **Formelsprache:** von `3w20+2` über `4w6kh3`, `2w20kl1`, `3w6!` und `1w20r1` bis zu Würfelpools wie `12w6>=5`, mit Rechnen wie `(2w6+3)*2` oder `aufrunden(1w6/2)`
@@ -23,16 +23,16 @@ cd redneckDice
 npm run dev        # oder: python3 -m http.server 8777
 ```
 
-Danach http://localhost:8777 öffnen. Für den Einbau in eine eigene App reicht die Datei `pnp-dice.js`.
+Danach http://localhost:8777 öffnen. Für den Einbau in eine eigene App reicht die Datei `redneck-dice.js`.
 
 ## Einbinden
 
 ```html
-<script src="pnp-dice.js"></script>
+<script src="redneck-dice.js"></script>
 <div id="wuerfel"></div>
 <script>
-  PnpDice.mount('#wuerfel');      // komplettes Würfel-Tool
-  PnpDice.bindAttributes();       // alle [data-pnp-roll] würfeln beim Klick
+  RedneckDice.mount('#wuerfel');      // komplettes Würfel-Tool
+  RedneckDice.bindAttributes();       // alle [data-pnp-roll] würfeln beim Klick
 </script>
 
 <button data-pnp-roll="1w20+5" data-pnp-label="Angriff">Angriff</button>
@@ -41,24 +41,24 @@ Danach http://localhost:8777 öffnen. Für den Einbau in eine eigene App reicht 
 Als ES-Modul (auch mit Vite):
 
 ```js
-import PnpDice, { roll, mount } from './pnp-dice.mjs';
+import RedneckDice, { roll, mount } from './redneck-dice.mjs';
 ```
 
 ## Würfeln ohne Oberfläche
 
 ```js
-const r = await PnpDice.roll('3w20+2', { label: 'Probe' });   // 3D-Würfel über der Seite
+const r = await RedneckDice.roll('3w20+2', { label: 'Probe' });   // 3D-Würfel über der Seite
 r.total      // 47
 r.detail     // "[6, 19, 20] + 2 = 47"
 r.text       // "Probe – 3W20+2: [6, 19, 20] + 2 = 47"
 r.crit       // true, wenn alle Würfel das Maximum zeigen (Regel überschreibbar)
 
-PnpDice.evaluate('4w6kh3');                            // nur auswerten, synchron, ohne Animation
-PnpDice.roll('2w6', { tray: '#teppich' });             // in einem eigenen Bereich würfeln
-PnpDice.roll('1w20', { animate: false });              // ohne Animation
+RedneckDice.evaluate('4w6kh3');                            // nur auswerten, synchron, ohne Animation
+RedneckDice.roll('2w6', { tray: '#teppich' });             // in einem eigenen Bereich würfeln
+RedneckDice.roll('1w20', { animate: false });              // ohne Animation
 ```
 
-`roll()` gibt ein Promise zurück, das sich erfüllt, sobald die Würfel liegen. Bei einer ungültigen Formel wird es mit einem `PnpDiceError` abgelehnt, dessen Meldung in der eingestellten Sprache formuliert ist.
+`roll()` gibt ein Promise zurück, das sich erfüllt, sobald die Würfel liegen. Bei einer ungültigen Formel wird es mit einem `RedneckDiceError` abgelehnt, dessen Meldung in der eingestellten Sprache formuliert ist.
 
 ## Formeln
 
@@ -89,17 +89,17 @@ Grenzen: 1–100 Würfel pro Gruppe, 1–10000 Seiten, höchstens 20 Bestandteil
 
 ```js
 // Symbole mit Werten: die Werte werden addiert
-PnpDice.defineDie('Treffer', {
+RedneckDice.defineDie('Treffer', {
   faces: ['💥', '💥', '⭐', '–', '–', '–'],
   values: [1, 1, 2, 0, 0, 0],
   color: '#e11d48',
 });
 
 // Nur Symbole: das Ergebnis wird gezählt ("2× Sonne · 1× Mond")
-PnpDice.defineDie('Omen', ['Sonne', 'Mond', 'Stern']);
+RedneckDice.defineDie('Omen', ['Sonne', 'Mond', 'Stern']);
 
 // Körper erzwingen
-PnpDice.defineDie('Richtung', { faces: ['N', 'O', 'S', 'W'], shape: 'd4' });
+RedneckDice.defineDie('Richtung', { faces: ['N', 'O', 'S', 'W'], shape: 'd4' });
 ```
 
 Im Würfel-Tool können Spieler über „Neuer Würfel“ selbst Würfel anlegen. Diese werden im `localStorage` gespeichert.
@@ -107,7 +107,7 @@ Im Würfel-Tool können Spieler über „Neuer Würfel“ selbst Würfel anlegen
 ## Würfel-Tool
 
 ```js
-const tool = PnpDice.mount('#wuerfel', {
+const tool = RedneckDice.mount('#wuerfel', {
   title: 'GM Würfel-Box',
   quick: ['1w6', '1w100'],      // Schnellwürfel; auch { notation, label, color }
   log: true,                    // Würfel-Log anzeigen
@@ -163,8 +163,8 @@ Zusätzlich gibt es `::part(panel|header|body|quick|display|log)`.
 ## Globale Einstellungen
 
 ```js
-PnpDice.configure({
-  lang: 'auto',           // 'de' | 'en' | 'auto'; eigene Sprachen über PnpDice.i18n.xx = {…}
+RedneckDice.configure({
+  lang: 'auto',           // 'de' | 'en' | 'auto'; eigene Sprachen über RedneckDice.i18n.xx = {…}
   animate: 'auto',        // true | false | 'auto' (bei prefers-reduced-motion liegen die Würfel sofort)
   sound: false, volume: 0.6,
   tray: 'overlay',        // 'overlay' | Element | '#selektor' | false
@@ -177,7 +177,7 @@ PnpDice.configure({
   hiddenAnimation: 'open',// verdeckte Würfe: 'open' (du siehst die Werte) | 'masked' (auch du siehst nur "?", z. B. am Beamer)
   colors: { 6: '#f59e0b', 20: '#dc2626', custom: '#0d9488' },
   crit: null,             // eigene Kritisch/Patzer-Regel, siehe unten
-  rng: null,              // eigener Zufall, z. B. PnpDice.createRng('seed')
+  rng: null,              // eigener Zufall, z. B. RedneckDice.createRng('seed')
 });
 ```
 
@@ -187,7 +187,7 @@ Standardmäßig gilt bei einer einzelnen Würfelgruppe: Zeigen alle Würfel das 
 
 ```js
 // How to be a Hero: 1 auf dem W100 ist kritisch, 100 ein Patzer
-PnpDice.configure({
+RedneckDice.configure({
   crit: r => {
     const g = r.groups[0];
     if (!g || g.sides !== 100) return null;
@@ -210,10 +210,10 @@ PnpDice.configure({
 | `neon` | dunkler Körper, leuchtende Kanten und Zahlen, Lichtfleck statt Schatten |
 
 ```js
-PnpDice.configure({ theme: 'metal' });                 // für alle Würfe
-PnpDice.roll('1w20', { theme: 'neon' });               // nur für diesen Wurf
-PnpDice.mount('#wuerfel', { theme: 'gem' });           // fest für dieses Tool, ohne Auswahl der Spieler …
-PnpDice.mount('#wuerfel', { looks: false });           // … oder die Auswahl im Tool ausblenden
+RedneckDice.configure({ theme: 'metal' });                 // für alle Würfe
+RedneckDice.roll('1w20', { theme: 'neon' });               // nur für diesen Wurf
+RedneckDice.mount('#wuerfel', { theme: 'gem' });           // fest für dieses Tool, ohne Auswahl der Spieler …
+RedneckDice.mount('#wuerfel', { looks: false });           // … oder die Auswahl im Tool ausblenden
 ```
 
 Im Würfel-Tool öffnet der Paletten-Knopf die Look-Auswahl mit Vorschauen. Die Wahl wird gespeichert. Gibt die App dem Tool keinen festen `theme` mit, gilt sie für alle Würfe der Seite.
@@ -221,7 +221,7 @@ Im Würfel-Tool öffnet der Paletten-Knopf die Look-Auswahl mit Vorschauen. Die 
 Eigene Looks lassen sich aus diesen Bausteinen zusammensetzen. Farben sind `'die'` (Würfelfarbe), ein Hexwert oder eine Funktion `(würfelRgb, körperRgb) => [r, g, b]`:
 
 ```js
-PnpDice.defineTheme('blut', {
+RedneckDice.defineTheme('blut', {
   label: { de: 'Blutstein', en: 'Bloodstone' },
   body: '#3b0a0a',          // Körperfarbe
   ink: '#fca5a5',           // Zahlen; 'auto' wählt hell oder dunkel passend zum Körper
@@ -233,8 +233,8 @@ PnpDice.defineTheme('blut', {
   floor: 'tint',            // 'shadow' | 'tint' | 'glow'
 });
 
-PnpDice.listThemes();                                   // [{ name, label }, …]
-PnpDice.renderPreview(canvas, { theme: 'blut', shape: 'd20', color: '#dc2626', value: 20 });   // Vorschaubild
+RedneckDice.listThemes();                                   // [{ name, label }, …]
+RedneckDice.renderPreview(canvas, { theme: 'blut', shape: 'd20', color: '#dc2626', value: 20 });   // Vorschaubild
 ```
 
 ## Einzelne Würfel neu würfeln
@@ -242,10 +242,10 @@ PnpDice.renderPreview(canvas, { theme: 'blut', shape: 'd20', color: '#dc2626', v
 Liegen die Würfel, lässt sich jeder einzeln anklicken (Glückspunkt, Edge, Inspiration). Die anderen bleiben genau so liegen, nur dieser rollt neu, und Summe, Behalten/Entfernen, Erfolge und Kritisch werden neu berechnet. Das Overlay blockiert dabei keine Klicks auf die Seite: Es nimmt Klicks nur direkt über einem Würfel an, und solange die Maus darüber steht, verschwinden die Würfel nicht. Im Würfel-Tool geht dasselbe über die Würfelleiste unter dem Ergebnis.
 
 ```js
-const r = await PnpDice.roll('4w6kh3');
-const neu = await PnpDice.reroll(r, 0, 2);        // Gruppe 0, Würfel 2: animiert, die anderen bleiben liegen
-PnpDice.rerollDie(r, 0, 2);                         // dasselbe ohne Animation
-PnpDice.applyReroll(r, 0, 2, 6);                    // Würfel auf einen festen Wert setzen
+const r = await RedneckDice.roll('4w6kh3');
+const neu = await RedneckDice.reroll(r, 0, 2);        // Gruppe 0, Würfel 2: animiert, die anderen bleiben liegen
+RedneckDice.rerollDie(r, 0, 2);                         // dasselbe ohne Animation
+RedneckDice.applyReroll(r, 0, 2, 6);                    // Würfel auf einen festen Wert setzen
 neu.id === r.id;    // true: derselbe Wurf, das Log ersetzt den Eintrag
 neu.rerolls;        // [[0, 2, 6]]; in neu.groups[0].rolls[2].manual steht der alte Wert
 ```
@@ -255,9 +255,9 @@ Ein Neuwurf löst die Ereignisse `roll` und `settle` aus wie ein normaler Wurf. 
 ## Verdeckte Würfe
 
 ```js
-const r = await PnpDice.roll('1w20+5 # Wahrnehmung', { hidden: true });
-PnpDice.replayData(r);   // { n: '1W20+5', h: 1, i: '…', l: 'Wahrnehmung' }: keine Werte!
-PnpDice.reveal(r);       // Ereignis 'reveal'; danach liefert replayData die echten Werte mit derselben id
+const r = await RedneckDice.roll('1w20+5 # Wahrnehmung', { hidden: true });
+RedneckDice.replayData(r);   // { n: '1W20+5', h: 1, i: '…', l: 'Wahrnehmung' }: keine Werte!
+RedneckDice.reveal(r);       // Ereignis 'reveal'; danach liefert replayData die echten Werte mit derselben id
 ```
 
 Die SL sieht ihren Wurf normal, mit „Verdeckt“-Markierung und einem „Aufdecken“-Knopf. Im Log bleibt der Wert unscharf, bis man mit der Maus darüberfährt (praktisch am Beamer). Wer mit `replay()` einen verdeckten Wurf empfängt, sieht Würfel mit „?“ und im Log „verdeckt gewürfelt“. Nach dem Aufdecken ersetzt der echte Wurf diesen Eintrag. Mit `hiddenAnimation: 'masked'` zeigen auch die eigenen Würfel nur „?“. Im Würfel-Tool schaltet das Auge neben „Würfeln“ verdeckte Würfe ein und aus.
@@ -265,21 +265,21 @@ Die SL sieht ihren Wurf normal, mit „Verdeckt“-Markierung und einem „Aufde
 Wenn die App ohnehin `replayData` bei jedem `roll` verschickt (siehe unten), braucht es für verdeckte Würfe nur noch eine Zeile:
 
 ```js
-PnpDice.on('reveal', r => socket.send(JSON.stringify(PnpDice.replayData(r))));
+RedneckDice.on('reveal', r => socket.send(JSON.stringify(RedneckDice.replayData(r))));
 ```
 
 ## Ereignisse und Multiplayer
 
 ```js
-PnpDice.on('roll', r => …);     // sofort beim Wurf, die Würfel rollen noch
-PnpDice.on('settle', r => …);   // die Würfel liegen, das Ergebnis wird gezeigt
-PnpDice.on('dice', list => …);  // eigene Würfel wurden angelegt oder entfernt
-PnpDice.on('reveal', r => …);   // ein verdeckter Wurf wurde aufgedeckt
+RedneckDice.on('roll', r => …);     // sofort beim Wurf, die Würfel rollen noch
+RedneckDice.on('settle', r => …);   // die Würfel liegen, das Ergebnis wird gezeigt
+RedneckDice.on('dice', list => …);  // eigene Würfel wurden angelegt oder entfernt
+RedneckDice.on('reveal', r => …);   // ein verdeckter Wurf wurde aufgedeckt
 
 // Spieler A
-PnpDice.on('roll', r => { if (!r.remote) socket.send(JSON.stringify(r)); });
+RedneckDice.on('roll', r => { if (!r.remote) socket.send(JSON.stringify(r)); });
 // Spieler B: zeigt exakt dieselben Werte, mit Animation und Log-Eintrag
-socket.onmessage = e => PnpDice.show(JSON.parse(e.data));
+socket.onmessage = e => RedneckDice.show(JSON.parse(e.data));
 ```
 
 Ein Ergebnis enthält `id`, `notation`, `label`, `total`, `display`, `unit`, `detail`, `text`, `groups` (mit allen Einzelwürfen), `modifier`, `successes`, `tally`, `min`, `max`, `crit`, `fumble` und `timestamp`. Ein Ergebnis aus `show()` trägt zusätzlich `remote: true`. In `detail` und `text` sind entfernte Würfel als `~~5~~` markiert, das stellt Discord direkt durchgestrichen dar.
@@ -289,8 +289,8 @@ Ein Ergebnis enthält `id`, `notation`, `label`, `total`, `display`, `unit`, `de
 Hat die App schon gewürfelt (Probe, Schaden …), zeigt `fixedRng` genau diesen Wert mit den 3D-Würfeln:
 
 ```js
-PnpDice.roll('1w100', { rng: PnpDice.fixedRng([37]), label: 'Probe' });
-PnpDice.roll('5w10',  { rng: PnpDice.fixedRng([7, 3, 9, 1, 4]) });   // die Würfel landen bei genau diesen Werten
+RedneckDice.roll('1w100', { rng: RedneckDice.fixedRng([37]), label: 'Probe' });
+RedneckDice.roll('5w10',  { rng: RedneckDice.fixedRng([7, 3, 9, 1, 4]) });   // die Würfel landen bei genau diesen Werten
 ```
 
 ## Würfe schlank übers Netzwerk schicken (ab 0.2)
@@ -298,13 +298,13 @@ PnpDice.roll('5w10',  { rng: PnpDice.fixedRng([7, 3, 9, 1, 4]) });   // die Wür
 Statt des ganzen Ergebnisses genügen Formel und Zufallswerte (meist unter 100 Byte). Der Empfänger baut den Wurf daraus selbst wieder auf, durch den normalen Parser mit allen Grenzen, und prüft die Daten:
 
 ```js
-PnpDice.on('roll', r => { const d = PnpDice.replayData(r); if (d && !r.remote) socket.send(JSON.stringify(d)); });
-socket.onmessage = e => PnpDice.replay(JSON.parse(e.data)).catch(() => {});   // wirft PnpDiceError bei ungültigen Daten
+RedneckDice.on('roll', r => { const d = RedneckDice.replayData(r); if (d && !r.remote) socket.send(JSON.stringify(d)); });
+socket.onmessage = e => RedneckDice.replay(JSON.parse(e.data)).catch(() => {});   // wirft RedneckDiceError bei ungültigen Daten
 ```
 
 Ab 0.4 enthalten die Daten außerdem die id des Wurfs (`i`), neu gewürfelte Einzelwürfel (`x`) und bei verdeckten Würfen nur `h: 1` statt der Werte. Ältere Daten ohne diese Felder bleiben gültig.
 
-`replayData` liefert `null` bei Würfen mit eigenen Würfeln (die der Empfänger nicht kennt) und bei zu großen Würfen. `PnpDice.replayResult(daten)` baut das Ergebnis ohne Animation auf. Jedes Ergebnis hat außerdem `raw`, die Zufallswerte in der Reihenfolge, in der sie gezogen wurden.
+`replayData` liefert `null` bei Würfen mit eigenen Würfeln (die der Empfänger nicht kennt) und bei zu großen Würfen. `RedneckDice.replayResult(daten)` baut das Ergebnis ohne Animation auf. Jedes Ergebnis hat außerdem `raw`, die Zufallswerte in der Reihenfolge, in der sie gezogen wurden.
 
 Für das Würfel-Tool gibt es zwei Optionen: `modifier: false` mit `modifierProvider: () => 3` übernimmt einen Bonus aus einem eigenen Feld der App, und `display: false` blendet die große Ergebnisanzeige im Tool aus, wenn die App das Ergebnis selbst zeigt.
 

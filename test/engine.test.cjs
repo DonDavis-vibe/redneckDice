@@ -1,7 +1,7 @@
 // node --test test/
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const D = require('../pnp-dice.js');
+const D = require('../redneck-dice.js');
 
 const seq = values => { let i = 0; return () => values[i++ % values.length]; };
 
@@ -136,25 +136,25 @@ test('Simulation legt das gewürfelte Ergebnis nach oben', () => {
 // ---- Version 0.2: vorgegebener Zufall und Nachspielen -------------------------------------------------
 
 test('fixedRng liefert die vorgegebenen Werte, begrenzt sie auf 1..max und würfelt danach weiter', () => {
-  const rng = PnpDice.fixedRng([37, 500, 0, 'x']);
+  const rng = RedneckDice.fixedRng([37, 500, 0, 'x']);
   assert.equal(rng(100), 37);
   assert.equal(rng(20), 20);      // 500 wird auf das Maximum begrenzt
   assert.equal(rng(6), 1);        // 0 wird zu 1
   assert.equal(rng(6), 1);        // Unsinn wird zu 1
   const v = rng(10);              // aufgebraucht: zufällig 1..10
   assert.ok(v >= 1 && v <= 10);
-  assert.equal(PnpDice.fixedRng()(8) >= 1, true);
+  assert.equal(RedneckDice.fixedRng()(8) >= 1, true);
 });
 
 test('Ein Ergebnis mit fixedRng zeigt genau die vorgegebenen Würfe', () => {
-  const r = PnpDice.evaluate('3w10+2', { rng: PnpDice.fixedRng([4, 9, 1]) });
+  const r = RedneckDice.evaluate('3w10+2', { rng: RedneckDice.fixedRng([4, 9, 1]) });
   assert.deepEqual(r.groups[0].rolls.map(x => x.value), [4, 9, 1]);
   assert.equal(r.total, 16);
   assert.deepEqual(r.raw, [4, 9, 1]);
 });
 
 test('evaluate merkt alle Zufallswerte (auch bei explodierenden und neu gewürfelten Würfeln)', () => {
-  const r = PnpDice.evaluate('3w6!', { rng: PnpDice.fixedRng([6, 6, 2, 3, 4]) });
+  const r = RedneckDice.evaluate('3w6!', { rng: RedneckDice.fixedRng([6, 6, 2, 3, 4]) });
   assert.deepEqual(r.raw, [6, 6, 2, 3, 4]);
 });
 
@@ -162,10 +162,10 @@ test('Nachspielen: replayData und replayResult ergeben denselben Wurf', () => {
   const formeln = ['1w100', '3w20+2', '4w6kh3', '4w6dl1', '2w20kl1', '3w6!', '1w20r1', '12w6>=5', '4wF', '1w%', '2w6+1w20', '1w20-1w4', '1w20+5 # Angriff', '2w10+3w6-2'];
   for (const f of formeln) {
     for (let i = 0; i < 25; i++) {
-      const r = PnpDice.evaluate(f, { modifier: i % 7 - 3, label: i % 2 ? 'Probe' : undefined });
-      const daten = PnpDice.replayData(r);
+      const r = RedneckDice.evaluate(f, { modifier: i % 7 - 3, label: i % 2 ? 'Probe' : undefined });
+      const daten = RedneckDice.replayData(r);
       assert.ok(daten, f);
-      const kopie = PnpDice.replayResult(JSON.parse(JSON.stringify(daten)));
+      const kopie = RedneckDice.replayResult(JSON.parse(JSON.stringify(daten)));
       assert.equal(kopie.total, r.total, f);
       assert.equal(kopie.detail, r.detail, f);
       assert.equal(kopie.display, r.display, f);
@@ -177,26 +177,26 @@ test('Nachspielen: replayData und replayResult ergeben denselben Wurf', () => {
 });
 
 test('Nachspielen bleibt klein', () => {
-  const daten = PnpDice.replayData(PnpDice.evaluate('10w6+3'));
+  const daten = RedneckDice.replayData(RedneckDice.evaluate('10w6+3'));
   assert.ok(JSON.stringify(daten).length < 120);
 });
 
 test('Nachspielen: Würfe mit eigenen Würfeln gibt es nicht als Daten (der Empfänger kennt sie nicht)', () => {
-  PnpDice.defineDie('Münze', ['Kopf', 'Zahl']);
-  const r = PnpDice.evaluate('1w{Münze}');
-  assert.equal(PnpDice.replayData(r), null);
-  PnpDice.removeDie('Münze');
+  RedneckDice.defineDie('Münze', ['Kopf', 'Zahl']);
+  const r = RedneckDice.evaluate('1w{Münze}');
+  assert.equal(RedneckDice.replayData(r), null);
+  RedneckDice.removeDie('Münze');
 });
 
 test('Nachspielen prüft fremde Daten', () => {
   const schlecht = [null, 'x', 5, {}, { n: '', r: [1] }, { n: '1w6', r: 'x' }, { n: '1w6', r: [1.5] }, { n: '1w6', r: [0] }, { n: '1w6', r: [10001] },
     { n: '1w6', r: [-1] }, { n: '1w6', r: new Array(501).fill(1) }, { n: 'x'.repeat(121), r: [1] }, { n: 'Hallo Welt', r: [1] }, { n: '101w6', r: [1] },
     { n: '1w6', r: ['3'] }, { n: '1w6', r: [null] }];
-  for (const d of schlecht) assert.throws(() => PnpDice.replayResult(d), e => e.name === 'PnpDiceError', JSON.stringify(d));
+  for (const d of schlecht) assert.throws(() => RedneckDice.replayResult(d), e => e.name === 'RedneckDiceError', JSON.stringify(d));
 });
 
 test('Nachspielen begrenzt Bonus und Beschriftung und lässt zu wenige Werte nicht abstürzen', () => {
-  const r = PnpDice.replayResult({ n: '2w6', r: [3], m: 99999, l: 'a'.repeat(200) });
+  const r = RedneckDice.replayResult({ n: '2w6', r: [3], m: 99999, l: 'a'.repeat(200) });
   assert.equal(r.modifier, 1000);
   assert.equal(r.label.length, 60);
   assert.equal(r.groups[0].rolls.length, 2);
@@ -204,7 +204,7 @@ test('Nachspielen begrenzt Bonus und Beschriftung und lässt zu wenige Werte nic
 });
 
 test('replay liefert ein Promise, das bei ungültigen Daten ablehnt', async () => {
-  await assert.rejects(PnpDice.replay({ n: 'unsinn', r: [] }), e => e.name === 'PnpDiceError');
+  await assert.rejects(RedneckDice.replay({ n: 'unsinn', r: [] }), e => e.name === 'RedneckDiceError');
 });
 
 test('Würfel-Looks', () => {
@@ -274,9 +274,9 @@ test('Einzelne Würfel neu würfeln', () => {
   assert.equal(D.applyReroll(pool, 0, 1, 5).total, 3);
   const t = D.evaluate('2w{Treffer}', { rng: seq([4, 4]) });
   assert.equal(D.applyReroll(t, 0, 0, 3).total, 2, 'eigener Würfel: Seite 3 ist der Stern');
-  assert.throws(() => D.applyReroll(r, 0, 9, 3), e => e.name === 'PnpDiceError');
-  assert.throws(() => D.applyReroll(r, 1, 0, 3), e => e.name === 'PnpDiceError', 'Zahl, kein Würfel');
-  assert.throws(() => D.applyReroll(r, 0, 0, 7), e => e.name === 'PnpDiceError', 'zu groß');
+  assert.throws(() => D.applyReroll(r, 0, 9, 3), e => e.name === 'RedneckDiceError');
+  assert.throws(() => D.applyReroll(r, 1, 0, 3), e => e.name === 'RedneckDiceError', 'Zahl, kein Würfel');
+  assert.throws(() => D.applyReroll(r, 0, 0, 7), e => e.name === 'RedneckDiceError', 'zu groß');
   const z = D.rerollDie(r, 0, 0, { rng: () => 4 });
   assert.equal(z.groups[0].rolls[0].value, 4);
   // übers Netz: dieselben Neuwürfe
@@ -286,8 +286,8 @@ test('Einzelne Würfel neu würfeln', () => {
   const k = D.replayResult(d);
   assert.equal(k.total, 19);
   assert.equal(k.id, r.id);
-  assert.throws(() => D.replayResult(Object.assign({}, d, { x: [[0, 99, 1]] })), e => e.name === 'PnpDiceError');
-  assert.throws(() => D.replayResult(Object.assign({}, d, { x: 'x' })), e => e.name === 'PnpDiceError');
+  assert.throws(() => D.replayResult(Object.assign({}, d, { x: [[0, 99, 1]] })), e => e.name === 'RedneckDiceError');
+  assert.throws(() => D.replayResult(Object.assign({}, d, { x: 'x' })), e => e.name === 'RedneckDiceError');
 });
 
 test('Verdeckte Würfe', async () => {
@@ -308,7 +308,7 @@ test('Verdeckte Würfe', async () => {
   assert.ok(fremd.groups[0].rolls.every(x => x.label === '?'));
   const specs = D._internal.buildSpecs(fremd, D.config);
   assert.ok(specs.every(s => s.value === '?' && s.list.every(l => l === '?')));
-  assert.throws(() => D.applyReroll(fremd, 0, 0, 3), e => e.name === 'PnpDiceError');
+  assert.throws(() => D.applyReroll(fremd, 0, 0, 3), e => e.name === 'RedneckDiceError');
   // Aufdecken
   let gesehen = null;
   const off = D.on('reveal', x => { gesehen = x; });
@@ -319,4 +319,10 @@ test('Verdeckte Würfe', async () => {
   const offen = D.replayData(r);
   assert.deepEqual(offen.r, [7, 15]);
   assert.equal(D.replayResult(offen).total, 20);
+});
+
+test('Name: RedneckDice, PnpDice bleibt als früherer Name erhalten', () => {
+  assert.equal(globalThis.RedneckDice, D);
+  assert.equal(globalThis.PnpDice, D, 'bestehende Einbauten mit PnpDice laufen weiter');
+  assert.throws(() => D.parse(''), e => e.name === 'RedneckDiceError');
 });

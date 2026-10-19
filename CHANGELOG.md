@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.0 – 2026-10-20
+
+- Renamed to **redneckDice**: files `redneck-dice.js` / `redneck-dice.mjs`, global `RedneckDice`, error name `RedneckDiceError`. `PnpDice` stays available as an alias, and `data-pnp-*`, `--pd-*` and the default storage key are unchanged, so existing integrations keep working.
+- The ES module now also exports `fixedRng`, `replay`, `replayData` and `replayResult`.
+
 ## 0.4.0 – 2026-10-20
 
 - Maths in formulas: `*` `×` `/` `÷` `:`, brackets, operator precedence, `ceil()`, `floor()`, `round()`, `abs()`, `min()`, `max()` (German aliases `aufrunden`, `abrunden`, `runden`, `betrag`). The final result is rounded down.
